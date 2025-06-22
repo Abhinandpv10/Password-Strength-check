@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Strength Tester</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 30px 40px;
+      width: 100%;
+      max-width: 420px;
+      color: #fff;
+      text-align: center;
+    }
+    h2 { margin-bottom: 20px; }
+    .input-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="password"], input[type="text"] {
+      padding: 12px;
+      width: 230px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    label {
+      font-size: 14px;
+      color: #eee;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .buttons { margin-top: 15px; }
+    button {
+      padding: 10px 20px;
+      margin: 6px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .test-btn { background-color: #1db954; color: #fff; }
+    .reset-btn { background-color: #536dfe; color: #fff; }
+    .test-btn:hover { background-color: #17a144; }
+    .reset-btn:hover { background-color: #4050d5; }
+    .loading {
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #eee;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+
+    .strength, .suggestions, .success-message, .warning-message {
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .show { opacity: 1; }
+
+    .strength.very-weak { color: #ff4b4b; }
+    .strength.weak { color: #ff944b; }
+    .strength.moderate { color: #ffc107; }
+    .strength.strong { color: #00e676; }
+    .strength.very-strong { color: #00c853; }
+
+    ul {
+      text-align: left;
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .success-message {
+      margin-top: 20px;
+      color: #00e676;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .warning-message {
+      margin-top: 20px;
+      color: #ffc107;
+      font-size: 16px;
+      font-weight: bold;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media screen and (max-width: 480px) {
+      .input-group { flex-direction: column; }
+      input[type="password"], input[type="text"] { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Password Strength Tester</h2>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Enter your password" />
+      <label><input type="checkbox" id="togglePassword" /> Show</label>
+    </div>
+    <div class="buttons">
+      <button class="test-btn" onclick="testPassword()">Test Password</button>
+      <button class="reset-btn" onclick="resetForm()">Try Another</button>
+    </div>
+    <div id="loading" class="loading" style="display:none;">Testing...</div>
+    <div id="strength" class="strength"></div>
+    <div id="suggestions" class="suggestions"></div>
+    <div id="successMessage" class="success-message"></div>
+    <div id="warningMessage" class="warning-message"></div>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('password');
+    const toggleCheckbox = document.getElementById('togglePassword');
+    const strengthOutput = document.getElementById('strength');
+    const suggestionsOutput = document.getElementById('suggestions');
+    const loading = document.getElementById('loading');
+    const successMessage = document.getElementById('successMessage');
+    const warningMessage = document.getElementById('warningMessage');
+
+    toggleCheckbox.addEventListener('change', () => {
+      passwordInput.type = toggleCheckbox.checked ? 'text' : 'password';
+    });
+
+    function testPassword() {
+      const password = passwordInput.value.trim();
+      let score = 0;
+      const suggestions = [];
+
+      // Reset
+      strengthOutput.className = 'strength';
+      suggestionsOutput.className = 'suggestions';
+      strengthOutput.textContent = '';
+      suggestionsOutput.innerHTML = '';
+      successMessage.textContent = '';
+      warningMessage.textContent = '';
+      loading.style.display = 'block';
+
+      setTimeout(() => {
+        if (password.length >= 8) score++; else suggestions.push("Use at least 8 characters.");
+        if (/[A-Z]/.test(password)) score++; else suggestions.push("Include an uppercase letter.");
+        if (/[a-z]/.test(password)) score++; else suggestions.push("Include a lowercase letter.");
+        if (/\d/.test(password)) score++; else suggestions.push("Add at least one number.");
+        if (/[!@#$%^&*(),.?\":{}|<>]/.test(password)) score++; else suggestions.push("Use special characters.");
+
+        let strengthText = "", className = "";
+        switch (score) {
+          case 5:
+            strengthText = "Very Strong"; className = "very-strong";
+            successMessage.textContent = "✅ Great! Your password is strong.";
+            break;
+          case 4:
+            strengthText = "Strong"; className = "strong";
+            successMessage.textContent = "✅ Nice! Your password is strong.";
+            break;
+          case 3:
+            strengthText = "Moderate"; className = "moderate";
+            break;
+          case 2:
+            strengthText = "Weak"; className = "weak";
+            warningMessage.textContent = "⚠️ Warning: Weak password. Improve it!";
+            break;
+          default:
+            strengthText = "Very Weak"; className = "very-weak";
+            warningMessage.textContent = "⚠️ Danger: Very weak password!";
+        }
+
+        loading.style.display = 'none';
+        strengthOutput.textContent = `Password Strength: ${strengthText}`;
+        strengthOutput.className = `strength show ${className}`;
+        suggestionsOutput.innerHTML = suggestions.length
+          ? `<ul>${suggestions.map(s => `<li>${s}</li>`).join('')}</ul>` : '';
+        suggestionsOutput.className = 'suggestions show';
+        successMessage.classList.toggle('show', score >= 4);
+        warningMessage.classList.toggle('show', score <= 2);
+      }, 1200);
+    }
+
+    function resetForm() {
+      passwordInput.value = "";
+      strengthOutput.textContent = "";
+      suggestionsOutput.innerHTML = "";
+      strengthOutput.className = "strength";
+      suggestionsOutput.className = "suggestions";
+      successMessage.textContent = "";
+      warningMessage.textContent = "";
+      successMessage.className = "success-message";
+      warningMessage.className = "warning-message";
+      loading.style.display = "none";
+      toggleCheckbox.checked = false;
+      passwordInput.type = "password";
+    }
+  </script>
+</body>
+</html>
