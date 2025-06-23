@@ -22,13 +22,13 @@ A visually interactive web app that allows users to test the strength of their p
 ## 🖼️ Screenshots
 
 ### 🟢 Password input with testing animation:
-![Password test](images/screenshot1.png)
+![Password test](images/Screenshot1.png)
 
 ### 🟡 Weak password warning:
-![Weak password](images/screenshot2.png)
+![Weak password](images/Screenshot2.png)
 
 ### 🟢 Strong password animation:
-![Strong password](images/screenshot3.png)
+![Strong password](images/Screenshot3.png)
 
 ## 🛠️ Built With
 
