@@ -19,6 +19,17 @@ A visually interactive web app that allows users to test the strength of their p
 - ✅ Reset and re-test functionality
 - ✅ Friendly UI with animated testing effect
 
+## 🖼️ Screenshots
+
+### 🟢 Password input with testing animation:
+![Password test](images/screenshot1.png)
+
+### 🟡 Weak password warning:
+![Weak password](images/screenshot2.png)
+
+### 🟢 Strong password animation:
+![Strong password](images/screenshot3.png)
+
 ## 🛠️ Built With
 
 - HTML5  
